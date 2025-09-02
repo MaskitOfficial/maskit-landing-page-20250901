@@ -252,7 +252,7 @@ const ApplySection: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-6">
               <div className="space-y-4 text-sm text-gray-700 leading-relaxed">
                 <p className="text-gray-900 font-medium">
-                  귀하는 아래의 내용을 확인하고 ㈜MASKIT inc에서 (이하 "당사") 다음과 같이 귀하의 개인정보를 수집 및 처리하는 것에 동의하며, 귀하에게 발신하는 제품 및 서비스, 이벤트 초대 또는 기타 맞춤형 정보와 관련된 이메일 또는 전화를 허용하려면 개인정보 처리에 동의해 주십시요.
+                  귀하는 아래의 내용을 확인하고 ㈜MASKIT inc에서 (이하 &quot;당사&quot;) 다음과 같이 귀하의 개인정보를 수집 및 처리하는 것에 동의하며, 귀하에게 발신하는 제품 및 서비스, 이벤트 초대 또는 기타 맞춤형 정보와 관련된 이메일 또는 전화를 허용하려면 개인정보 처리에 동의해 주십시요.
                 </p>
                 
                 <p>

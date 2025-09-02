@@ -27,7 +27,7 @@ const TestimonialCard: React.FC<TestimonialProps> = ({ avatar, author, company, 
       </div>
       
       <blockquote className="text-sm md:text-lg text-gray-700 italic leading-relaxed relative pl-4 md:pl-6">
-        <span className="absolute left-0 top-[-6px] md:top-[-8px] text-2xl md:text-4xl text-[#CE2C4F] font-serif leading-none">"</span>
+        <span className="absolute left-0 top-[-6px] md:top-[-8px] text-2xl md:text-4xl text-[#CE2C4F] font-serif leading-none">&ldquo;</span>
         {quote}
       </blockquote>
     </div>

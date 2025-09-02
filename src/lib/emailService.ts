@@ -8,7 +8,7 @@ const emailLogs: Array<{
   recipient: string;
   subject: string;
   status: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
 }> = [];
 
 // Gmail SMTP 트랜스포터 생성
@@ -33,7 +33,7 @@ export async function getEmailLogs() {
   };
 }
 
-export async function sendBetaSignupNotification(data: Record<string, any>) {
+export async function sendBetaSignupNotification(data: Record<string, unknown>) {
   try {
     // 관리자에게 알림 이메일 (info@maskit.co.kr)
     const adminMailOptions = {

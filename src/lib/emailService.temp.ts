@@ -1,7 +1,6 @@
 // 임시 이메일 테스트 (실제 발송 없이 로그만)
-import { BetaSignupData } from '../types';
 
-export async function sendBetaSignupNotification(data: Record<string, any>) {
+export async function sendBetaSignupNotification(data: Record<string, unknown>) {
   try {
     console.log('=== 이메일 발송 시뮬레이션 ===');
     console.log('수신자: info@maskit.co.kr');

@@ -6,7 +6,7 @@ export function useFormSubmit(endpoint: string) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const submitForm = async (data: Record<string, any>) => {
+  const submitForm = async (data: Record<string, unknown>) => {
     setIsSubmitting(true);
     setError(null);
     

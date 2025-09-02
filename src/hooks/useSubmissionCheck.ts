@@ -4,8 +4,8 @@ import { useState } from 'react';
 export function useSubmissionCheck() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [submissions, setSubmissions] = useState<any[]>([]);
-  const [emailLogs, setEmailLogs] = useState<any[]>([]);
+  const [submissions, setSubmissions] = useState<unknown[]>([]);
+  const [emailLogs, setEmailLogs] = useState<unknown[]>([]);
 
   const checkSubmissions = async (apiKey: string) => {
     setIsLoading(true);
