@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { appendContactToSheet } from '@/lib/googleSheets';
+import { sendContactInquiryNotification } from '@/lib/emailService';
 import { ContactFormData } from '@/types';
 
 export async function POST(request: NextRequest) {
@@ -50,15 +51,23 @@ export async function POST(request: NextRequest) {
     // 스프레드시트에 데이터 추가
     const sheetResult = await appendContactToSheet(sheetData);
     if (!sheetResult.success) {
-      return NextResponse.json(
-        { success: false, error: sheetResult.error },
-        { status: 500 }
-      );
+      console.warn('Google Sheets 저장 실패:', sheetResult.error);
+      // 시트 저장 실패해도 이메일은 발송 시도
+    }
+    
+    // info@maskit.co.kr로 알림 이메일 발송
+    const emailResult = await sendContactInquiryNotification(data);
+    if (!emailResult.success) {
+      console.warn('이메일 발송 실패:', emailResult.error);
     }
     
     return NextResponse.json({ 
       success: true,
-      message: '문의가 성공적으로 접수되었습니다. 빠른 시일 내에 연락드리겠습니다.'
+      message: '문의가 성공적으로 접수되었습니다. 빠른 시일 내에 연락드리겠습니다.',
+      details: {
+        sheetSaved: sheetResult.success,
+        emailSent: emailResult.success
+      }
     });
   } catch (error) {
     console.error('Error processing apply form:', error);

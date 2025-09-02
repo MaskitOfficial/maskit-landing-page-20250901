@@ -26,6 +26,94 @@ const transporter = nodemailer.createTransport({
 });
 
 // 이메일 로그 가져오기
+export async function sendContactInquiryNotification(data: Record<string, unknown>) {
+  try {
+    // 관리자에게 문의 알림 이메일
+    const adminMailOptions = {
+      from: `"마스킷 랜딩페이지" <${process.env.GMAIL_USER}>`,
+      to: 'info@maskit.co.kr',
+      subject: `[마스킷] 새로운 문의 접수 - ${data.companyName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #CE2C4F; border-bottom: 2px solid #CE2C4F; padding-bottom: 10px;">새로운 문의가 접수되었습니다</h2>
+          
+          <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="margin-top: 0; color: #333;">문의 정보</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px; border: 1px solid #ddd; background-color: #f5f5f5;"><strong>회사명</strong></td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${data.companyName}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; border: 1px solid #ddd; background-color: #f5f5f5;"><strong>담당자명</strong></td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${data.contactPerson}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; border: 1px solid #ddd; background-color: #f5f5f5;"><strong>이메일</strong></td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${data.email}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; border: 1px solid #ddd; background-color: #f5f5f5;"><strong>전화번호</strong></td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${data.phone}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; border: 1px solid #ddd; background-color: #f5f5f5;"><strong>문의내용</strong></td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${data.inquiry || '문의내용 없음'}</td>
+              </tr>
+            </table>
+          </div>
+          
+          <p style="color: #666; font-size: 14px;">문의 접수 시간: ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}</p>
+        </div>
+      `
+    };
+
+    console.log('📧 문의 알림 이메일 발송 시도...');
+    console.log('수신자:', 'info@maskit.co.kr');
+    console.log('문의자:', data.contactPerson, `(${data.companyName})`);
+
+    // 이메일 발송
+    const result = await transporter.sendMail(adminMailOptions);
+    console.log('✅ 문의 알림 이메일 발송 성공:', result.messageId);
+
+    // 로그 추가
+    emailLogs.push({
+      timestamp: new Date().toISOString(),
+      recipient: 'info@maskit.co.kr',
+      subject: `[마스킷] 새로운 문의 접수 - ${data.companyName}`,
+      status: '전송 성공',
+      data: {
+        companyName: data.companyName as string,
+        contactPerson: data.contactPerson as string,
+        email: data.email as string
+      }
+    });
+
+    return { 
+      success: true,
+      messageId: result.messageId
+    };
+  } catch (error) {
+    console.error('❌ 문의 알림 이메일 발송 실패:', error);
+    
+    // 실패 로그 추가
+    emailLogs.push({
+      timestamp: new Date().toISOString(),
+      recipient: 'info@maskit.co.kr',
+      subject: `[마스킷] 새로운 문의 접수 - ${data.companyName}`,
+      status: '전송 실패',
+      data: {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }
+    });
+
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Email sending failed' 
+    };
+  }
+}
+
 export async function getEmailLogs() {
   return { 
     success: true, 
