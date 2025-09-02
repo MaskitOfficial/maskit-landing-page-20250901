@@ -26,60 +26,102 @@ const transporter = nodemailer.createTransport({
 });
 
 // 이메일 로그 가져오기
-export async function sendContactInquiryNotification(data: Record<string, unknown>) {
+export async function sendContactInquirySlackNotification(data: Record<string, unknown>) {
   try {
-    // 관리자에게 문의 알림 이메일
-    const adminMailOptions = {
-      from: `"마스킷 랜딩페이지" <${process.env.GMAIL_USER}>`,
-      to: 'info@maskit.co.kr',
-      subject: `[마스킷] 새로운 문의 접수 - ${data.companyName}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #CE2C4F; border-bottom: 2px solid #CE2C4F; padding-bottom: 10px;">새로운 문의가 접수되었습니다</h2>
-          
-          <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="margin-top: 0; color: #333;">문의 정보</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-              <tr>
-                <td style="padding: 8px; border: 1px solid #ddd; background-color: #f5f5f5;"><strong>회사명</strong></td>
-                <td style="padding: 8px; border: 1px solid #ddd;">${data.companyName}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px; border: 1px solid #ddd; background-color: #f5f5f5;"><strong>담당자명</strong></td>
-                <td style="padding: 8px; border: 1px solid #ddd;">${data.contactPerson}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px; border: 1px solid #ddd; background-color: #f5f5f5;"><strong>이메일</strong></td>
-                <td style="padding: 8px; border: 1px solid #ddd;">${data.email}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px; border: 1px solid #ddd; background-color: #f5f5f5;"><strong>전화번호</strong></td>
-                <td style="padding: 8px; border: 1px solid #ddd;">${data.phone}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px; border: 1px solid #ddd; background-color: #f5f5f5;"><strong>문의내용</strong></td>
-                <td style="padding: 8px; border: 1px solid #ddd;">${data.inquiry || '문의내용 없음'}</td>
-              </tr>
-            </table>
-          </div>
-          
-          <p style="color: #666; font-size: 14px;">문의 접수 시간: ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}</p>
-        </div>
-      `
+    const slackWebhookUrl = process.env.SLACK_WEBHOOK_URL;
+    
+    if (!slackWebhookUrl) {
+      throw new Error('SLACK_WEBHOOK_URL environment variable is not set');
+    }
+
+    // Slack 메시지 페이로드 구성
+    const slackMessage = {
+      text: "🔔 새로운 문의가 접수되었습니다!",
+      blocks: [
+        {
+          type: "header",
+          text: {
+            type: "plain_text",
+            text: "🔔 새로운 문의 접수",
+            emoji: true
+          }
+        },
+        {
+          type: "section",
+          fields: [
+            {
+              type: "mrkdwn",
+              text: `*회사명:*\n${data.companyName}`
+            },
+            {
+              type: "mrkdwn",
+              text: `*담당자명:*\n${data.contactPerson}`
+            },
+            {
+              type: "mrkdwn",
+              text: `*이메일:*\n${data.email}`
+            },
+            {
+              type: "mrkdwn",
+              text: `*전화번호:*\n${data.phone}`
+            }
+          ]
+        },
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `*문의내용:*\n${data.inquiry || '문의내용 없음'}`
+          }
+        },
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `*접수시간:* ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}`
+          }
+        },
+        {
+          type: "actions",
+          elements: [
+            {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: "📊 스프레드시트 확인하기",
+                emoji: true
+              },
+              url: "https://docs.google.com/spreadsheets/d/12HXrs4IPh3WK7j-q730XqEkLwfaMnLjteO9m0fNy6yY/edit?usp=sharing",
+              action_id: "view_spreadsheet",
+              style: "primary"
+            }
+          ]
+        }
+      ]
     };
 
-    console.log('📧 문의 알림 이메일 발송 시도...');
-    console.log('수신자:', 'info@maskit.co.kr');
+    console.log('📱 Slack 알림 전송 시도...');
     console.log('문의자:', data.contactPerson, `(${data.companyName})`);
 
-    // 이메일 발송
-    const result = await transporter.sendMail(adminMailOptions);
-    console.log('✅ 문의 알림 이메일 발송 성공:', result.messageId);
+    // Slack webhook으로 메시지 전송
+    const response = await fetch(slackWebhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(slackMessage),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Slack webhook failed: ${response.status} ${response.statusText}`);
+    }
+
+    console.log('✅ Slack 알림 전송 성공');
 
     // 로그 추가
     emailLogs.push({
       timestamp: new Date().toISOString(),
-      recipient: 'info@maskit.co.kr',
+      recipient: 'Slack Channel',
       subject: `[마스킷] 새로운 문의 접수 - ${data.companyName}`,
       status: '전송 성공',
       data: {
@@ -91,15 +133,15 @@ export async function sendContactInquiryNotification(data: Record<string, unknow
 
     return { 
       success: true,
-      messageId: result.messageId
+      messageId: 'slack-notification'
     };
   } catch (error) {
-    console.error('❌ 문의 알림 이메일 발송 실패:', error);
+    console.error('❌ Slack 알림 전송 실패:', error);
     
     // 실패 로그 추가
     emailLogs.push({
       timestamp: new Date().toISOString(),
-      recipient: 'info@maskit.co.kr',
+      recipient: 'Slack Channel',
       subject: `[마스킷] 새로운 문의 접수 - ${data.companyName}`,
       status: '전송 실패',
       data: {
@@ -109,7 +151,7 @@ export async function sendContactInquiryNotification(data: Record<string, unknow
 
     return { 
       success: false, 
-      error: error instanceof Error ? error.message : 'Email sending failed' 
+      error: error instanceof Error ? error.message : 'Slack notification failed' 
     };
   }
 }

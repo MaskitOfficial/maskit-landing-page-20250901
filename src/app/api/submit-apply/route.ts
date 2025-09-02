@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { appendContactToSheet } from '@/lib/googleSheets';
-import { sendContactInquiryNotification } from '@/lib/emailService';
+import { sendContactInquirySlackNotification } from '@/lib/emailService';
 import { ContactFormData } from '@/types';
 
 export async function POST(request: NextRequest) {
@@ -55,10 +55,10 @@ export async function POST(request: NextRequest) {
       // 시트 저장 실패해도 이메일은 발송 시도
     }
     
-    // info@maskit.co.kr로 알림 이메일 발송
-    const emailResult = await sendContactInquiryNotification(data);
-    if (!emailResult.success) {
-      console.warn('이메일 발송 실패:', emailResult.error);
+    // Slack으로 알림 발송
+    const slackResult = await sendContactInquirySlackNotification(data);
+    if (!slackResult.success) {
+      console.warn('Slack 알림 발송 실패:', slackResult.error);
     }
     
     return NextResponse.json({ 
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       message: '문의가 성공적으로 접수되었습니다. 빠른 시일 내에 연락드리겠습니다.',
       details: {
         sheetSaved: sheetResult.success,
-        emailSent: emailResult.success
+        slackSent: slackResult.success
       }
     });
   } catch (error) {
