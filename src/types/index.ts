@@ -94,3 +94,12 @@ export interface SectionProps {
   export interface SubmissionData extends BetaSignupData {
     Timestamp: string;
   }
+  
+  // 이메일 로그 타입
+  export interface EmailLog {
+    timestamp: string;
+    recipient: string;
+    subject: string;
+    status: string;
+    data?: Record<string, unknown>;
+  }

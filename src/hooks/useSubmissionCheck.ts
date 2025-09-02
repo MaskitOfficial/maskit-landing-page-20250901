@@ -1,12 +1,12 @@
 // /src/hooks/useSubmissionCheck.ts
 import { useState } from 'react';
-import { SubmissionData } from '../types';
+import { SubmissionData, EmailLog } from '../types';
 
 export function useSubmissionCheck() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submissions, setSubmissions] = useState<SubmissionData[]>([]);
-  const [emailLogs, setEmailLogs] = useState<unknown[]>([]);
+  const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
 
   const checkSubmissions = async (apiKey: string) => {
     setIsLoading(true);

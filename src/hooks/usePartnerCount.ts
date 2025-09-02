@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 
 export function usePartnerCount() {
-  const [data, setData] = useState({ count: 0, total: 100, loading: true, error: null });
+  const [data, setData] = useState<{ count: number; total: number; loading: boolean; error: string | null }>({ count: 0, total: 100, loading: true, error: null });
   
   useEffect(() => {
     const fetchPartnerCount = async () => {

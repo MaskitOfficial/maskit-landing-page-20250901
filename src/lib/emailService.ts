@@ -102,7 +102,7 @@ export async function sendBetaSignupNotification(data: Record<string, unknown>) 
     // 신청자에게 확인 이메일
     const userMailOptions = {
       from: `"Qless Space" <${process.env.GMAIL_USER}>`,
-      to: data.email,
+      to: data.email as string,
       subject: '[Qless Space] 베타 파트너 신청이 접수되었습니다',
       text: `
 안녕하세요, ${data.ownerName}님!
@@ -161,13 +161,13 @@ Qless Space 팀 드림
 
     emailLogs.push({
       timestamp: new Date().toISOString(),
-      recipient: data.email,
+      recipient: data.email as string,
       subject: '[Qless Space] 베타 파트너 신청이 접수되었습니다',
       status: '전송 성공',
       data: {
-        spaceName: data.spaceName,
-        spaceType: data.spaceType,
-        ownerName: data.ownerName
+        spaceName: data.spaceName as string,
+        spaceType: data.spaceType as string,
+        ownerName: data.ownerName as string
       }
     });
 
