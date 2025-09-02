@@ -89,3 +89,8 @@ export interface SectionProps {
     error?: string;
     messageId?: string;
   }
+  
+  // 구글 시트에서 받은 제출 데이터 타입 (BetaSignupData 확장)
+  export interface SubmissionData extends BetaSignupData {
+    Timestamp: string;
+  }
